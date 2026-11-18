@@ -1,9 +1,11 @@
 import { test as base } from '@playwright/test';
-import { App } from '../facade/App.js';
-import { ApiClient } from '../api/ApiClient.js';
+import { App } from '../facade/App'; // Проверь путь, если папка src в корне, то '../facade/App' верно
 
 export const test = base.extend({
   app: async ({ page, request }, use) => {
-    await use(new App(page, new ApiClient(request)));
+    // Передаем page и request в фасад (так как в App.js конструктор ждет два аргумента)
+    await use(new App(page, request)); 
   },
 });
+
+export { expect } from '@playwright/test';

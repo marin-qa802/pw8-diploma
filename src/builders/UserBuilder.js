@@ -1,4 +1,3 @@
-// src/builders/UserBuilder.js
 import { faker } from '@faker-js/faker';
 
 export class UserBuilder {
@@ -39,5 +38,14 @@ export class UserBuilder {
       firstName: this.firstName,
       lastName: this.lastName
     };
+  }
+
+  // Вот правильный статический метод
+  static demoUser() {
+    const builder = new UserBuilder();
+    builder.username = 'demo';
+    builder.email = 'demo@vikunja.io';
+    builder.password = 'demo';
+    return builder.build();
   }
 }

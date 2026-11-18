@@ -1,6 +1,16 @@
 export class RegisterPage {
   constructor(page) {
     this.page = page;
+  }
+}
+
+
+
+
+/*
+export class RegisterPage {
+  constructor(page) {
+    this.page = page;
     this.nameInput = page.getByRole('textbox', { name: 'Your Name' });
     this.emailInput = page.getByRole('textbox', { name: 'Email' });
     this.passwordInput = page.getByRole('textbox', { name: 'Password' });
@@ -14,3 +24,4 @@ export class RegisterPage {
     await this.signupButton.click();
   }
 }
+*/

@@ -6,13 +6,14 @@ export class App {
   constructor(page, api) {
     this.page = page;
     this.api = api;
-    this.loginPage = new LoginPage(page);
-    this.registerPage = new RegisterPage(page);
-    this.projects = new ProjectsPage(page);
+    this.dashboard = new ProjectsPage(page);
+    this.login = new LoginPage(page); // <--- здесь this.login        // <--- БЫЛО loginPage, стало login
+    this.register = new RegisterPage(page);  // <--- БЫЛО registerPage, стало register
+    this.projects = new ProjectsPage(page);  // <--- БЫЛО projects, оставляем
   }
 
   async as(user) {
-    await this.loginPage.open();
-    await this.loginPage.login(user);
+  await this.login.open();     // БЫЛО loginPage
+  await this.login.login(user); // БЫЛО loginPage
   }
 }
