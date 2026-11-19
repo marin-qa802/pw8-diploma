@@ -23,19 +23,21 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Setup Allure TestOps
-        uses: allure-framework/setup-allurectl@v1
-        with:
-          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT }}
-          allure-token: ${{ secrets.ALLURE_TOKEN }}
-          allure-project-id: ${{ secrets.ALLURE_PROJECT_ID }}
-
-      - name: Run Playwright tests with Allure
-        run: allurectl watch --npx playwright test
+      - name: Run Playwright tests
+        run: npx playwright test
         env:
-          ALLURE_RESULTS: allure-results
           BASE_URL: ${{ secrets.BASE_URL }}
           VIKUNJA_TOKEN: ${{ secrets.VIKUNJA_TOKEN }}
+          ALLURE_RESULTS: allure-results
+
+      # Сохраняем отчет Allure как артефакт (чтобы можно было скачать с GitHub)
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results/
+          retention-days: 30
 
       - name: Send Telegram Notification
         if: always()
