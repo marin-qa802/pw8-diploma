@@ -1,4 +1,4 @@
-name: Playwright Tests & Allure Report
+name: Playwright Tests
 
 on:
   push:
@@ -11,36 +11,35 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-      
-    - name: Setup Allure TestOps
-      uses: allure-framework/setup-allurectl@v1
-      with:
-        allure-endpoint: ${{ secrets.ALLURE_ENDPOINT }}
-        allure-token: ${{ secrets.ALLURE_TOKEN }}
-        allure-project-id: ${{ secrets.ALLURE_PROJECT_ID }}
+      - uses: actions/checkout@v4
 
-    - name: Run Playwright tests with Allure
-      run: allurectl watch --npx playwright test
-      env:
-        ALLURE_RESULTS: allure-results
-        # Здесь передаем твои секреты для тестов, если они нужны
-        URL_UI: ${{ secrets.URL_UI }}
-        URL_API: ${{ secrets.URL_API }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-    - name: Send Telegram Notification
-      if: always()
-      run: |
-        curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-          -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-          -d text="Прогон завершен! Статус: ${{ job.status }}. Проверь Allure."
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Setup Allure TestOps
+        uses: allure-framework/setup-allurectl@v1
+        with:
+          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT }}
+          allure-token: ${{ secrets.ALLURE_TOKEN }}
+          allure-project-id: ${{ secrets.ALLURE_PROJECT_ID }}
+
+      - name: Run Playwright tests with Allure
+        run: allurectl watch --npx playwright test
+        env:
+          ALLURE_RESULTS: allure-results
+          BASE_URL: ${{ secrets.BASE_URL }}
+          VIKUNJA_TOKEN: ${{ secrets.VIKUNJA_TOKEN }}
+
+      - name: Send Telegram Notification
+        if: always()
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d text="Прогон завершен! Статус: ${{ job.status }}. Проверь Allure."

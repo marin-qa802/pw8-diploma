@@ -1,10 +1,16 @@
 import { test as base } from '@playwright/test';
-import { App } from '../facade/App'; // Проверь путь, если папка src в корне, то '../facade/App' верно
+import { AppApi } from '../services/api';
+import { VikunjaMainPage } from '../pages/VikunjaMainPage';
 
 export const test = base.extend({
-  app: async ({ page, request }, use) => {
-    // Передаем page и request в фасад (так как в App.js конструктор ждет два аргумента)
-    await use(new App(page, request)); 
+  // API фасад
+  api: async ({ request }, use) => {
+    await use(new AppApi(request));
+  },
+  
+  // UI фасад
+  mainPage: async ({ page }, use) => {
+    await use(new VikunjaMainPage(page));
   },
 });
 

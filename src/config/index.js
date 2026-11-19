@@ -1,4 +1,2 @@
-import 'dotenv/config';
-
-export const URL_UI = process.env.URL_UI || 'https://try.vikunja.io';
-export const URL_API = process.env.URL_API || 'https://try.vikunja.io/api/v1';
+export const URL_UI = process.env.BASE_URL || 'https://try.vikunja.io';
+export const API_TOKEN = process.env.VIKUNJA_TOKEN;

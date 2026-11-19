@@ -1,18 +1,10 @@
 import { test as base } from '@playwright/test';
-import { App } from '../facade/App.js';
-import { ApiClient } from '../api/ApiClient.js';
+import { AppApi } from '../services/api'; // путь к твоему файлу api.js
 
 export const test = base.extend({
-  app: async ({ page, request }, use) => {
-    await use(new App(page, new ApiClient(request)));
+  api: async ({ request }, use) => {
+    await use(new AppApi(request));
   },
 });
 
-
-
-
-
-/*
-export * from './builders/index.js';
-export * from './const/index.js';
-*/
+export { expect } from '@playwright/test';

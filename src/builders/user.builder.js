@@ -18,16 +18,3 @@ export class UserBuilder {
     return result;
   }
 }
-
-// const user = new UserBuilder().withEmail(); {} -> {email: faker}
-// const user = new UserBuilder().withEmail().withPassword(12).withName().build(); {} -> {email: faker, password: faker, name : faker}
-// const user = new UserBuilder().withEmail().withName().build(); {} -> {email: faker, password: faker, name : faker}
-
-
-/* 
-    const user = {
-    email: faker.internet.email(),
-    name: faker.person.fullName(),
-    password:  faker.internet.password()
-}
-*/
