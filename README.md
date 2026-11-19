@@ -20,6 +20,18 @@
    ```env
 BASE_URL=https://try.vikunja.io
 VIKUNJA_TOKEN=your_api_token_here
+
+## Структура проекта
+
+- `tests/ui/`, `tests/api/` — тесты (5 UI + 5 API)
+- `src/pages/` — Page Object'ы
+- `src/facade/` — фасад, тесты получают его из фикстуры
+- `src/builders/` — билдеры тестовых данных (faker только здесь)
+- `src/fixtures/` — фикстура с фасадом
+- `src/services/` — API-клиент
+- `.github/workflows/tests.yml` — CI: прогон, отправка в Allure TestOps, уведомление в Telegram
+
+
 ## Отчетность и уведомления
 
 В проекте настроен CI/CD через GitHub Actions. После каждого пуша запускаются тесты.
