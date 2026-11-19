@@ -29,7 +29,7 @@ VIKUNJA_TOKEN=your_api_token_here
 
 ### 2. Уведомление в Telegram
 После завершения тестов бот присылает отчет:
-![Telegram Notification](screenshots/github-actions.png.jpg)
+![Telegram Notification](screenshots/telegram.png.jpg)
 
 ### 3. Успешный прогон в GitHub Actions
-![GitHub Actions](screenshots/telegram.png.jpg)
+![GitHub Actions](screenshots/github-actions.png.jpg)
