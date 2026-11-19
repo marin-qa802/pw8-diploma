@@ -20,3 +20,16 @@
    ```env
 BASE_URL=https://try.vikunja.io
 VIKUNJA_TOKEN=your_api_token_here
+## Отчетность и уведомления
+
+В проекте настроен CI/CD через GitHub Actions. После каждого пуша запускаются тесты.
+
+### 1. Отчет Allure (100% Pass Rate)
+![Allure Report](screenshots/allure-report.png)
+
+### 2. Уведомление в Telegram
+После завершения тестов бот присылает отчет:
+![Telegram Notification](screenshots/telegram.png)
+
+### 3. Успешный прогон в GitHub Actions
+![GitHub Actions](screenshots/github-actions.png)
