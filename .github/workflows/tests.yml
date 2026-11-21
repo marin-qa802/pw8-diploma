@@ -23,29 +23,22 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Setup allurectl
+        uses: allure-framework/setup-allurectl@v1
+        with:
+          allure-endpoint: ${{ secrets.ALLURE_ENDPOINT }}
+          allure-token: ${{ secrets.ALLURE_TOKEN }}
+          allure-project-id: ${{ secrets.ALLURE_PROJECT_ID }}
+
       - name: Run Playwright tests
-        run: npx playwright test
+        run: allurectl watch -- npx playwright test
         env:
           CI: true
           BASE_URL: ${{ secrets.BASE_URL }}
           VIKUNJA_USER: ${{ secrets.VIKUNJA_USER }}
           VIKUNJA_PASSWORD: ${{ secrets.VIKUNJA_PASSWORD }}
-
-      - name: Upload results to Allure TestOps
-        if: ${{ always() }}
-        run: |
-          wget -q https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_amd64 -O ./allurectl
-          chmod +x ./allurectl
-          ./allurectl upload \
-            --endpoint ${ALLURE_ENDPOINT} \
-            --token ${ALLURE_TOKEN} \
-            --project-id ${ALLURE_PROJECT_ID} \
-            allure-results
-        env:
-          ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT }}
-          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
-          ALLURE_PROJECT_ID: ${{ secrets.ALLURE_PROJECT_ID }}
-
+          VIKUNJA_FRESH_PASSWORD: ${{ secrets.VIKUNJA_FRESH_PASSWORD }}
+          ALLURE_RESULTS: allure-results
 
       # Сохраняем результаты Allure как артефакт (можно скачать с GitHub)
       - name: Upload Allure Results

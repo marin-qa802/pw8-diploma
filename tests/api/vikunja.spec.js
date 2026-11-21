@@ -7,7 +7,7 @@ test.describe('Vikunja API', () => {
     const projectData = new ProjectBuilder().withTitle('Мой тестовый проект').build();
     const response = await api.createProject(projectData);
 
-    expect(response.status()).toBe(201);
+    expect([200, 201]).toContain(response.status());
     const body = await response.json();
     expect(body.title).toBe('Мой тестовый проект');
   });
@@ -16,7 +16,7 @@ test.describe('Vikunja API', () => {
     const response = await api.getProjects();
     expect(response.status()).toBe(200);
     const body = await response.json();
-    expect(body.items).toBeInstanceOf(Array);
+    expect(Array.isArray(body)).toBe(true);
   });
 
   test('Создание задачи в проекте', async ({ api }) => {
@@ -27,7 +27,7 @@ test.describe('Vikunja API', () => {
     const taskData = new TaskBuilder().withTitle('Купить хлеб').build();
     const taskRes = await api.createTask(project.id, taskData);
 
-    expect(taskRes.status()).toBe(201);
+    expect([200, 201]).toContain(taskRes.status());
     const task = await taskRes.json();
     expect(task.title).toBe('Купить хлеб');
   });

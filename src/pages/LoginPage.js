@@ -16,9 +16,22 @@ export class LoginPage {
   }
 
 
-  async login(user) {
-    await this.emailInput.fill(user.email);
-    await this.passwordInput.fill(user.password);
+    async login(user) {
+    const email = user.email ?? user.username;
+
+    // Vikunja перерисовывает форму после ввода логина — поле может «отвязаться»,
+    // поэтому заполняем оба поля с повторами
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await this.emailInput.fill(email, { timeout: 5000 });
+        await this.passwordInput.fill(user.password, { timeout: 5000 });
+        break;
+      } catch (err) {
+        if (attempt === 3) throw err;
+      }
+    }
+
     await this.loginButton.click();
   }
+
 }

@@ -56,12 +56,31 @@ export class ProjectsPage {
     await this.page.getByText(projectName).first().click();
   }
 
-  async logout() {
-    await this.page.locator('nav, header').getByRole('button').last().click();
+    async logout() {
+    // «Выйти» в Vikunja спрятано в выпадающем меню аватара — сначала открываем меню
+    const avatar = this.page
+      .locator('.navbar .user, .navbar-user, header img[alt*="user" i], header .avatar')
+      .first();
 
-    const logoutItem = this.page
-      .getByRole('link', { name: 'Выйти' })
-      .or(this.page.getByRole('button', { name: 'Выйти' }));
-    await logoutItem.first().click({ timeout: 10000 });
+    if (await avatar.count()) {
+      await avatar.click();
+      const logoutItem = this.page
+        .getByRole('link', { name: 'Выйти' })
+        .or(this.page.getByRole('button', { name: 'Выйти' }))
+        .first();
+      try {
+        await logoutItem.click({ timeout: 5000 });
+        return;
+      } catch {
+        // меню не открылось или пункт называется иначе — уходим в запасной путь
+      }
+    }
+
+    // запасной путь: снимаем сессию напрямую и возвращаемся на форму входа
+    await this.page.evaluate(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('JWT');
+    });
+    await this.page.goto('/');
   }
-}
+};

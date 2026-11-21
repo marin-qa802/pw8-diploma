@@ -11,7 +11,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : 2,
+  workers: 1,
   timeout: process.env.CI ? 90_000 : 60_000,
 
   reporter: [
@@ -24,12 +24,17 @@ export default defineConfig({
     locale: 'ru-RU',
     screenshot: 'on',
     trace: 'on-first-retry',
+    storageState: 'playwright/.auth/user.json',
   },
 
-  projects: [
+    projects: [
     {
       name: 'setup',
       testMatch: /auth\.setup\.js/,
+      use: {
+        // setup стартует без сессии — файл состояния ещё не создан
+        storageState: { cookies: [], origins: [] },
+      },
     },
     {
       name: 'chromium',

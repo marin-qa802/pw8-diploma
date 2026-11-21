@@ -1,6 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import { App } from '../facade/App.js';
 import { AppApi } from '../services/api.js';
+import { getCreds } from '../config/creds.js';
 
 export const test = base.extend({
   app: async ({ page }, use) => {
@@ -10,18 +11,13 @@ export const test = base.extend({
   api: async ({ playwright }, use) => {
     const request = await playwright.request.newContext({
       baseURL: process.env.BASE_URL || 'https://try.vikunja.io',
-      extraHTTPHeaders: process.env.VIKUNJA_TOKEN
-        ? { Authorization: `Bearer ${process.env.VIKUNJA_TOKEN}` }
-        : {},
     });
 
     const apiService = new AppApi(request);
-    if (!process.env.VIKUNJA_TOKEN) {
-      await apiService.login({
-        username: process.env.VIKUNJA_USER,
-        password: process.env.VIKUNJA_PASSWORD,
-      });
-    }
+
+    // креды берём из creds.js — setup уже создал живого пользователя
+    const { username, password } = getCreds();
+    await apiService.login({ username, password });
 
     await use(apiService);
     await request.dispose();
@@ -29,3 +25,4 @@ export const test = base.extend({
 });
 
 export { expect };
+

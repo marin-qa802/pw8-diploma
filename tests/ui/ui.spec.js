@@ -1,10 +1,8 @@
 import { test, expect } from '../../src/fixtures/index.js';
 import { ProjectBuilder, TaskBuilder } from '../../src/builders/task.builder.js';
+import { getCreds } from '../../src/config/creds.js';
 
-const testUser = {
-  email: process.env.VIKUNJA_USER,
-  password: process.env.VIKUNJA_PASSWORD,
-};
+const testUser = getCreds();
 
 // очищает сессию, чтобы снова увидеть форму логина
 async function clearAuthState(app) {
@@ -18,21 +16,32 @@ async function clearAuthState(app) {
 
 test.describe('Vikunja UI: Функциональные сценарии', () => {
 
-  test('Успешная авторизация пользователя', async ({ app }) => {
+    test('Успешная авторизация пользователя', async ({ app }) => {
     await clearAuthState(app);
-
     await app.login.open();
-    await app.login.login(testUser);
 
-    // ждём токен в localStorage — факт входа, независимо от разметки
-    await app.page.waitForFunction(
-      () => Boolean(window.localStorage.getItem('token')),
-      null,
-      { timeout: 15000 },
-    );
+    // форма входа на демо-стенде бывает капризной (перерисовка, 429) — даём два подхода
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      await app.login.login(testUser);
+
+      const gotToken = await app.page
+        .waitForFunction(
+          () => Boolean(window.localStorage.getItem('token')),
+          null,
+          { timeout: 15000 },
+        )
+        .then(() => true)
+        .catch(() => false);
+
+      if (gotToken) break;
+    }
+
+    await expect
+      .poll(() => app.page.evaluate(() => window.localStorage.getItem('token')))
+      .toBeTruthy();
   });
 
-      test('Ошибка при вводе неверного пароля', async ({ app }) => {
+  test('Ошибка при вводе неверного пароля', async ({ app }) => {
     const invalidCredentials = {
       email: process.env.VIKUNJA_USER,
       password: 'WrongPassword123!',

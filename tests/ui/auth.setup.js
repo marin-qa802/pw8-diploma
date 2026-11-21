@@ -1,19 +1,23 @@
-import { test } from '../../src/fixtures/index.js';
+import { test as setup } from '../../src/fixtures/index.js';
+import { ensureUser, getCreds } from '../../src/config/creds.js';
 
-test('authenticate', async ({ app }) => {
-  await app.login.open();
-  await app.login.login({
-    email: process.env.VIKUNJA_USER,
-    password: process.env.VIKUNJA_PASSWORD,
+setup('authenticate', async ({ app }) => {
+  // 1) гарантируем живого пользователя
+  await ensureUser(process.env.BASE_URL);
+  const { username, password } = getCreds();
+
+  // 2) логинимся через API — надёжнее формы, и без риска словить 429 на UI-клике
+  const resp = await app.page.request.post('/api/v1/login', {
+    data: { username, password },
   });
+  if (!resp.ok()) {
+    throw new Error(`Login failed: ${resp.status()} ${await resp.text()}`);
+  }
+  const { token } = await resp.json();
 
-  // Vikunja кладёт JWT в localStorage под ключом "token" — ждём именно его
-  await app.login.page.waitForFunction(
-    () => Boolean(window.localStorage.getItem('token')),
-    null,
-    { timeout: 15000 },
-  );
+  // 3) кладём токен в localStorage и сохраняем storageState
+  await app.page.goto('/');
+  await app.page.evaluate((t) => localStorage.setItem('token', t), token);
 
-  await app.login.page.context()
-    .storageState({ path: 'playwright/.auth/user.json' });
+  await app.page.context().storageState({ path: 'playwright/.auth/user.json' });
 });

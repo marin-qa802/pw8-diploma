@@ -20,27 +20,30 @@ export class AppApi {
   }
 
   async createProject(projectData) {
-    return this.request.post('/api/v2/projects', { data: projectData, headers: this.headers() });
+    // Vikunja v1: создание — через PUT
+    return this.request.put('/api/v1/projects', { data: projectData, headers: this.headers() });
   }
 
   async updateProject(projectId, projectData) {
-    return this.request.put(`/api/v2/projects/${projectId}`, { data: projectData, headers: this.headers() });
+    // Vikunja v1: обновление — через POST
+    return this.request.post(`/api/v1/projects/${projectId}`, { data: projectData, headers: this.headers() });
   }
 
   async getProjects() {
-    return this.request.get('/api/v2/projects', { headers: this.headers() });
+    return this.request.get('/api/v1/projects', { headers: this.headers() });
   }
 
   async createTask(projectId, taskData) {
-    return this.request.post(`/api/v2/projects/${projectId}/tasks`, { data: taskData, headers: this.headers() });
+    // Vikunja v1: создание задачи — тоже PUT
+    return this.request.put(`/api/v1/projects/${projectId}/tasks`, { data: taskData, headers: this.headers() });
   }
 
   async getTask(projectId, taskId) {
-    return this.request.get(`/api/v2/projects/${projectId}/tasks/${taskId}`, { headers: this.headers() });
+    return this.request.get(`/api/v1/projects/${projectId}/tasks/${taskId}`, { headers: this.headers() });
   }
 
   async deleteTask(projectId, taskId) {
-    // Vikunja удаляет задачу по прямому пути /api/v2/tasks/{taskId}
-    return this.request.delete(`/api/v2/tasks/${taskId}`, { headers: this.headers() });
+    // Vikunja удаляет задачу по прямому пути /api/v1/tasks/{taskId}
+    return this.request.delete(`/api/v1/tasks/${taskId}`, { headers: this.headers() });
   }
 }

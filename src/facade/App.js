@@ -1,5 +1,6 @@
 import { LoginPage } from '../pages/LoginPage.js';
 import { ProjectsPage } from '../pages/ProjectsPage.js';
+import { getCreds } from '../config/creds.js';
 
 const tokenCache = { value: null };
 
@@ -11,10 +12,10 @@ export class App {
     this.projects = new ProjectsPage(page);
   }
 
-  async as(user) {
-    if (!tokenCache.value) {
-      tokenCache.value = await this.fetchTokenWithRetry(user);
-    }
+  async as(page) {
+    const { username, password } = getCreds();
+    await this.fetchTokenWithRetry(username, password);
+
     const token = tokenCache.value;
 
     await this.page.goto('/');
@@ -26,17 +27,16 @@ export class App {
     await loading.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {});
   }
 
-  async fetchTokenWithRetry(user) {
+    async fetchTokenWithRetry(username, password) {
+    if (tokenCache.value) return;   // токен уже получен — не бьём по логину повторно
+
     for (let attempt = 1; attempt <= 3; attempt++) {
       const resp = await this.page.request.post('/api/v1/login', {
-        data: {
-          username: user.email,
-          password: user.password,
-        },
+        data: { username, password },
       });
       if (resp.ok()) {
-        const { token } = await resp.json();
-        return token;
+        tokenCache.value = (await resp.json()).token;
+        return;
       }
       if (resp.status() === 429 && attempt < 3) {
         // упёрлись в rate limit — ждём и пробуем снова с нарастающей паузой
@@ -45,5 +45,6 @@ export class App {
       }
       throw new Error(`Не удалось получить токен: ${resp.status()} ${await resp.text()}`);
     }
+  
   }
 }
