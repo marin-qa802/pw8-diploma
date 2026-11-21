@@ -26,11 +26,27 @@ jobs:
       - name: Run Playwright tests
         run: npx playwright test
         env:
+          CI: true
           BASE_URL: ${{ secrets.BASE_URL }}
-          VIKUNJA_TOKEN: ${{ secrets.VIKUNJA_TOKEN }}
-          ALLURE_RESULTS: allure-results
+          VIKUNJA_USER: ${{ secrets.VIKUNJA_USER }}
+          VIKUNJA_PASSWORD: ${{ secrets.VIKUNJA_PASSWORD }}
 
-      # Сохраняем отчет Allure как артефакт (чтобы можно было скачать с GitHub)
+      - name: Upload results to Allure TestOps
+        if: always()
+        run: |
+          wget -q https://github.com/qameta/allurectl/releases/latest/download/allurectl_linux_amd64 -O allurectl
+          chmod +x allurectl
+          ./allurectl upload \
+            --endpoint ${ALLURE_ENDPOINT} \
+            --token ${ALLURE_TOKEN} \
+            --project-id ${ALLURE_PROJECT_ID} \
+            allure-results
+        env:
+          ALLURE_ENDPOINT: ${{ secrets.ALLURE_ENDPOINT }}
+          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+          ALLURE_PROJECT_ID: ${{ secrets.ALLURE_PROJECT_ID }}
+
+      # Сохраняем результаты Allure как артефакт (можно скачать с GitHub)
       - name: Upload Allure Results
         if: always()
         uses: actions/upload-artifact@v4
@@ -44,4 +60,5 @@ jobs:
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="Прогон завершен! Статус: ${{ job.status }}. Проверь Allure."
+            -d parse_mode=HTML \
+            -d text="🤖 Прогон тестов Vikunja — ${{ job.status }}<br>Коммит: ${{ github.event.head_commit.message }}<br>Журнал: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
