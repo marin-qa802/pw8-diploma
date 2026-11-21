@@ -1,43 +1,79 @@
-import { test, expect } from '../../src/fixtures/index';
+import { test, expect } from '../../src/fixtures/index.js';
+import { UserBuilder } from '../../src/builders/user.builder.js';
+import { ProjectBuilder, TaskBuilder } from '../../src/builders/task.builder.js';
 
-test.describe('Vikunja UI Тесты', () => {
+const testUser = {
+  email: process.env.VIKUNJA_USER,
+  password: process.env.VIKUNJA_PASSWORD,
+};
 
-  test('Главная страница успешно загружается и имеет заголовок', async ({ page }) => {
-    await page.goto('/');
-    await expect(page).toHaveTitle(/Vikunja/i);
+// очищает сессию, чтобы снова увидеть форму логина
+async function clearAuthState(app) {
+  await app.page.goto('/');
+  await app.page.context().clearCookies();
+  await app.page.evaluate(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+}
+
+test.describe('Vikunja UI: Функциональные сценарии', () => {
+
+  test('Успешная авторизация пользователя', async ({ app }) => {
+    await clearAuthState(app);
+
+    await app.login.open();
+    await app.login.login(testUser);
+
+    // ждём токен в localStorage — факт входа, независимо от разметки
+    await app.page.waitForFunction(
+      () => Boolean(window.localStorage.getItem('token')),
+      null,
+      { timeout: 15000 },
+    );
   });
 
-  // ИСПРАВЛЕННЫЙ ТЕСТ: Проверяем, что форма логина отображается
-  test('Форма входа отображается с необходимыми полями', async ({ mainPage }) => {
-    await mainPage.open();
-    
-    // Проверяем, что поля видны (это функциональный тест: пользователь может войти)
-    await expect(mainPage.usernameInput).toBeVisible();
-    await expect(mainPage.passwordInput).toBeVisible();
+      test('Ошибка при вводе неверного пароля', async ({ app }) => {
+    const invalidCredentials = {
+      email: process.env.VIKUNJA_USER,
+      password: 'WrongPassword123!',
+    };
+
+    await clearAuthState(app);
+
+    await app.login.open();
+    await app.login.login(invalidCredentials);
+
+    await expect(app.login.errorMessage).toBeVisible();
   });
 
-  test('Поля ввода для логина активны и доступны', async ({ mainPage }) => {
-    await mainPage.open();
-    
-    await expect(mainPage.usernameInput).toBeEditable();
-    await expect(mainPage.passwordInput).toBeEditable();
+  test('Создание нового проекта через UI', async ({ app }) => {
+    await app.as(testUser);
+
+    const project = new ProjectBuilder().build();
+    await app.projects.createProject(project.title);
+
+    await expect(app.projects.getProjectLocator(project.title)).toBeVisible();
   });
 
-  test('Кнопка Login доступна для нажатия', async ({ mainPage }) => {
-    await mainPage.open();
-    
-    await expect(mainPage.submitButton).toBeEnabled();
+  test('Создание задачи внутри проекта', async ({ app }) => {
+    await app.as(testUser);
+
+    const project = new ProjectBuilder().build();
+    await app.projects.createProject(project.title);
+
+    const task = new TaskBuilder().build();
+    await app.projects.createTask(task.title);
+
+    await expect(app.projects.getTaskLocator(task.title)).toBeVisible();
   });
 
-  // ИСПРАВЛЕННЫЙ ТЕСТ: Проверяем переход на страницу регистрации напрямую
-  test('Страница регистрации доступна', async ({ page }) => {
-    // Пытаемся перейти напрямую по URL (Vikunja использует /register)
-    await page.goto('/register');
-    
-    // Если регистрация открыта, мы увидим поле Email
-    // Если закрыта (как на демо), мы просто проверим, что страница загрузилась без ошибки 404
-    // В Playwright проверка на отсутствие 404 делается через response
-    const response = await page.goto('/register');
-    expect(response?.status()).not.toBe(404);
+  test('Выход из учетной записи (Logout)', async ({ app }) => {
+    await app.as(testUser);
+
+    await app.projects.logout();
+
+    await expect(app.login.loginButton).toBeVisible({ timeout: 10000 });
   });
+
 });

@@ -14,26 +14,29 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
 
   reporter: [
-    ['html', { open: 'never' }], 
-    ['allure-playwright', { outputFolder: 'allure-results' }]
+    ['html', { open: 'never' }],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
   ],
 
-  use: {
-    // Берем URL из .env
+      use: {
     baseURL: process.env.BASE_URL || 'https://try.vikunja.io',
-    // Добавляем авторизацию для API Vikunja
-    extraHTTPHeaders: {
-      'Authorization': `Bearer ${process.env.VIKUNJA_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
+    locale: 'ru-RU',
     screenshot: 'on',
     trace: 'on-first-retry',
   },
 
   projects: [
     {
+      name: 'setup',
+      testMatch: /auth\.setup\.js/,
+    },
+    {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/user.json',
+      },
+      dependencies: ['setup'],
     },
   ],
 });
