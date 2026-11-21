@@ -57,3 +57,6 @@
 
 ### Уведомление в Telegram
 ![Telegram Notification](screenshots/telegram.jpg)
+
+### Playwright HTML-отчёт
+![Playwright Report](screenshots/playwright-report.jpg)
