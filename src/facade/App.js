@@ -27,10 +27,12 @@ export class App {
     await loading.waitFor({ state: 'hidden', timeout: 15000 }).catch(() => {});
   }
 
-    async fetchTokenWithRetry(username, password) {
-    if (tokenCache.value) return;   // токен уже получен — не бьём по логину повторно
+      async fetchTokenWithRetry(username, password) {
+    if (tokenCache.value) return; // токен уже получен — не бьём по логину повторно
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    const delays = [0, 5000, 15000, 30000, 60000]; // нарастающие паузы, мс
+    for (const delay of delays) {
+      if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
       const resp = await this.page.request.post('/api/v1/login', {
         data: { username, password },
       });
@@ -38,13 +40,12 @@ export class App {
         tokenCache.value = (await resp.json()).token;
         return;
       }
-      if (resp.status() === 429 && attempt < 3) {
-        // упёрлись в rate limit — ждём и пробуем снова с нарастающей паузой
-        await new Promise((resolve) => setTimeout(resolve, attempt * 5000));
-        continue;
+      if (resp.status() !== 429) {
+        throw new Error(`Не удалось получить токен: ${resp.status()} ${await resp.text()}`);
       }
-      throw new Error(`Не удалось получить токен: ${resp.status()} ${await resp.text()}`);
+      // 429 — молчим и ждём следующей попытки
+    }
+    throw new Error('Не удалось получить токен: сервер стабильно отвечает 429');
     }
   
   }
-}
