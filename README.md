@@ -39,16 +39,21 @@
 - `.github/workflows/tests.yml` — CI: прогон, отправка в Allure TestOps, уведомление в Telegram
 
 
-## Отчетность и уведомления
 
-В проекте настроен CI/CD через GitHub Actions. После каждого пуша запускаются тесты.
+## Отчетность и CI/CD
 
-### 1. Отчет Allure (100% Pass Rate)
-![Allure Report](screenshots/allure-report.png)
+В проекте настроен CI/CD через GitHub Actions. После каждого пуша
+запускаются все 11 тестов, результаты загружаются в Allure TestOps,
+а бот присылает уведомление о статусе прогона в Telegram.
 
-### 2. Уведомление в Telegram
-После завершения тестов бот присылает отчет:
-![Telegram Notification](screenshots/telegram.png)
+### Прогон в GitHub Actions
+![GitHub Actions](screenshots/github-actions.jpg)
 
-### 3. Успешный прогон в GitHub Actions
-![GitHub Actions](screenshots/github-actions.png)
+### Локальный Allure Report
+![Allure Report](screenshots/allure-report.jpg)
+
+### Запуск в Allure TestOps
+![Allure TestOps](screenshots/testops-launch.jpg)
+
+### Уведомление в Telegram
+![Telegram Notification](screenshots/telegram.jpg)
