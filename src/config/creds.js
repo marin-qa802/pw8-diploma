@@ -27,7 +27,7 @@ function freshUser() {
   return {
     username: `qa_${id}`,
     email: `qa_${id}@example.com`,
-    password: 'Aa123456!',
+    password: process.env.VIKUNJA_FRESH_PASSWORD || 'Aa123456!',
   };
 }
 
@@ -84,7 +84,7 @@ export async function ensureUser(baseURL) {
   throw new Error('Не удалось зарегистрировать пользователя: стенд отвечает 429. Подождите 30–60 минут и запустите снова.');
 }
 
-// для Page Object'ов и фасада:creds текущего прогона
+// для Page Object'ов и фасада: креды текущего прогона
 export function getCreds() {
   if (fs.existsSync(CREDS_FILE)) {
     return JSON.parse(fs.readFileSync(CREDS_FILE, 'utf8'));
