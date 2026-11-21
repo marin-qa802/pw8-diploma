@@ -4,7 +4,7 @@ export class LoginPage {
     this.emailInput = page.getByRole('textbox', { name: 'Имя пользователя или Email' });
     this.passwordInput = page.getByRole('textbox', { name: 'Пароль' });
     this.loginButton = page.getByRole('button', { name: 'Войти' });
-    this.errorMessage = page.getByText(/неверн/i).first();
+    this.errorMessage = page.getByRole('alert');
 
   }
 
