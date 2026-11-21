@@ -41,9 +41,12 @@ export class ProjectsPage {
   }
 
   getProjectLocator(name) {
-    // проект в сайдбаре — это ссылка с его названием
-    return this.page.getByRole('link', { name }).first();
-  }
+  return this.page
+    .getByRole('link', { name })
+    .or(this.page.getByText(name, { exact: true }))
+    .first();
+}
+
 
   getTaskLocator(name) {
     return this.page.getByText(name).first();
