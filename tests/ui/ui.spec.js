@@ -1,5 +1,4 @@
 import { test, expect } from '../../src/fixtures/index.js';
-import { UserBuilder } from '../../src/builders/user.builder.js';
 import { ProjectBuilder, TaskBuilder } from '../../src/builders/task.builder.js';
 
 const testUser = {
